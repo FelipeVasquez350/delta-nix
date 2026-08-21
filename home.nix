@@ -1,9 +1,17 @@
-{ pkgs, ... }:
 {
-  # Delta's install.sh puts its `delta` symlink here.
-  home.sessionPath = [ "$HOME/.local/bin" ];
+  config,
+  lib,
+  ...
+}:
+let
+  cfg = config.programs.delta;
+in
+{
+  options.programs.delta.enable =
+    lib.mkEnableOption "adding ~/.local/bin so Delta's installer is on PATH";
 
-  # "Open in Zed" looks for a binary literally named `zed`; nixpkgs calls it
-  # `zeditor`.
-  home.file.".local/bin/zed".source = "${pkgs.zed-editor}/bin/zeditor";
+  config = lib.mkIf cfg.enable {
+    # Delta's install.sh puts its `delta` symlink here.
+    home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
+  };
 }
